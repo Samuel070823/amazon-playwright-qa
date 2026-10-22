@@ -19,14 +19,40 @@ export class AmazonSearchPage {
     });
   }
 
-  async goto() {
-    await this.page.goto('/');
+  
 
-    console.log('Amazon URL:', this.page.url());
-    console.log('Amazon title:', await this.page.title());
+async goto() {
+  const response = await this.page.goto('/', {
+    waitUntil: 'domcontentloaded',
+    timeout: 45000,
+  });
 
-    await this.reportUnexpectedPage();
+  const title = await this.page.title();
+  const bodyText = await this.page
+    .locator('body')
+    .innerText()
+    .catch(() => '');
+
+  console.log('Amazon URL:', this.page.url());
+  console.log('HTTP status:', response?.status() ?? 'Sin respuesta');
+  console.log('Page title:', JSON.stringify(title));
+  console.log('Body text:', JSON.stringify(bodyText.slice(0, 300)));
+
+  if (!response) {
+    throw new Error('Amazon navigation returned no HTTP response.');
   }
+
+  if (response.status() === 202 && !bodyText.trim()) {
+    throw new Error(
+      'Amazon returned HTTP 202 with an empty page. ' +
+      'The test cannot continue until a usable page is available.'
+    );
+  }
+
+  await this.reportUnexpectedPage();
+}
+
+
 
   async reportUnexpectedPage() {
     const isSearchVisible = await this.searchBox
