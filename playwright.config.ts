@@ -42,6 +42,15 @@ export default defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
+    {
+      name: 'amazonQA',
+      use:{
+      baseURL: 'https://www.amazon.es',
+      trace: 'retain-on-failure',
+      screenshot: 'only-on-failure',
+      ...devices['Desktop Chrome']
+      },
+    }
 
     /* Test against mobile viewports. */
     // {
